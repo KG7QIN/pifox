@@ -71,9 +71,9 @@ clear
 echo "pifox - $foxversion"
 echo "Select from the following functions:"
 echo "  0    Run fox script"
-echo "  1    Load default settings"
-echo "  2    Edit current settings"
-echo "  3    Display current settings"
+echo "  1    Load default settings"
+echo "  2    Edit current settings"
+echo "  3    Display current settings"
 echo "  4    Automatically run at boot"
 echo "  5    Remove from boot"
 echo "  6    Close program"
@@ -251,7 +251,7 @@ fi
 mount -t ramfs -o size=10m ramfs /mnt/ramdisk
 
 cd $foxdir
-cp nbfm /mnt/ramdisk/nbfm
+#cp ~/rpitx /mnt/ramdisk/rpitx
 cp pifox.sh /mnt/ramdisk/pifox.sh
 cp pkt2wave /mnt/ramdisk/pkt2wave
 
@@ -324,7 +324,7 @@ fi
 	#the following line is to generate the voice audio file
 
 if [[ "$foxvoice" == 1 ]]; then
-		text2wave fox.txt -F 22500 -o fox.wav
+		text2wave fox.txt -F 48000 -o fox.wav
 fi
 
 	#the following line is to generate the packet radio audio file
@@ -351,7 +351,11 @@ fi
 if [[ "$Vox" == 0 ]]; then
 
 if [[ "$foxvoice" == 1 ]]; then
-		./nbfm fox.wav $inp1 22500 $inp3 $inp4 $inp5 $inp6 $inp7 $inp8
+#cat fox.wav | /home/pi/rpitx/csdr/csdr convert_i16_f | /home/pi/rpitx/csdr/csdr gain_ff 2500 | sudo /home/pi/rpitx/sendiq -i /dev/stdin -s 22500 -f 434e6 -t float 1 | /home/pi/rpitx/csdr/csdr gain_ff 7000 | /home/pi/rpitx/csdr/csdr convert_f_samplerf 20833 \		| sudo /home/pi/rpitx/rpitx -i- -m RF -f "%1"
+		#./nbfm fox.wav $inp1 22500 $inp3 $inp4 $inp5 $inp6 $inp7 $inp8
+		cat fox.wav | /home/pi/rpitx/csdr/csdr convert_i16_f \
+		| /home/pi/rpitx/csdr/csdr gain_ff 7000 | /home/pi/rpitx/csdr/csdr convert_f_samplerf 20833 \
+		| sudo /home/pi/rpitx/rpitx -i- -m RF -f "${inp1}e3"
 fi
 
 if [[ "$foxpacket" == 1 ]]; then
@@ -368,7 +372,7 @@ count=$((count+1))
 echo "
 Transmission count: $count
 "
-if [ $count = $foxcount ];
+if [ $count == $foxcount ];
 then
 break
 fi
